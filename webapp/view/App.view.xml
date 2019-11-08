@@ -1,4 +1,10 @@
-<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns:html="http://www.w3.org/1999/xhtml" xmlns="sap.m" controllerName="com.federalmogul.sc.Z_PP_SC.controller.App" displayBlock="true">
+<mvc:View 
+xmlns:mvc="sap.ui.core.mvc"
+xmlns:html="http://www.w3.org/1999/xhtml"
+xmlns="sap.m"
+controllerName="com.federalmogul.sc.Z_PP_SC.controller.App"
+displayBlock="true">
+	
 	<App id="idAppControl">
 		<pages class="sapUiContentPadding">
 			<Page title="{i18n>title}">
@@ -9,10 +15,10 @@
 				        <sap.ui.layout.form:content>
 				        	
 				            <Label text="Confirm Production Order"/>
-				            <Input width="100%" id="confirmProdOrder" placeholder="Enter Production Order" type="Number"/>
-				            <Input width="100%" id="confirmQty" placeholder="Enter Quantity" type="Number" fieldWidth="100%"/>
+				            <Input width="100%" id="confirmProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_PRODORDER_CONFIRM_SRV>Aufnr}"/>
+				            <Input width="100%" id="confirmQty" placeholder="Enter Quantity" type="Number" fieldWidth="100%" value="{Z_PP_PRODORDER_CONFIRM_SRV>Menge}"/>
 				            <Input width="100%" enabled="false"/>
-				            <Button xmlns="sap.m" text="Confirm" type="Accept"/>
+				            <Button xmlns="sap.m" text="Confirm" type="Accept" press=".onHandProdConfirmPress"/>
 				            
 				            <Label text="Issue Production Order"/>
 				            <Input width="100%" id="issueProdOrder" placeholder="Enter Production Order" type="Number"/>
@@ -65,5 +71,6 @@
 				</content>
 			</Page>
 		</pages>
+		
 	</App>
 </mvc:View>
