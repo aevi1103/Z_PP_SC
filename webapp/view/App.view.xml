@@ -10,28 +10,56 @@ displayBlock="true">
 			<Page title="{i18n>title}">
 				<content>
 					
-				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" id="form0" class="sapUiMediumMarginTopBottom" title="Production Order">
+				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Confirm Production Order">
 				    	
 				        <sap.ui.layout.form:content>
 				        	
-				            <Label text="Confirm Production Order"/>
-				            <Input width="100%" id="confirmProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_PRODORDER_CONFIRM_SRV>Aufnr}"/>
-				            <Input width="100%" id="confirmQty" placeholder="Enter Quantity" type="Number" fieldWidth="100%" value="{Z_PP_PRODORDER_CONFIRM_SRV>Menge}"/>
-				            <Input width="100%" enabled="false"/>
-				            <Button xmlns="sap.m" text="Confirm" type="Accept" press=".onHandProdConfirmPress"/>
+				        	<Label text="Scan"/>
+				            <Input width="50%" id="confirmScan" placeholder="Scan" submit="onChangeConfirmBarcode"/>
+				        	
+				            <Label text="Production Order"/>
+				            <Input width="50%" id="confirmProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_PRODORDER_CONFIRM_SRV>Aufnr}"/>
 				            
-				            <Label text="Issue Production Order"/>
-				            <Input width="100%" id="issueProdOrder" placeholder="Enter Production Order" type="Number"/>
-				            <Input width="100%" id="issueMatNumber" placeholder="Enter Material Number"/>
-				            <Input width="100%" id="issueSloc" placeholder="Enter Storage Location" type="Number"/>
-				            <Input width="100%" id="issueQty" placeholder="Enter Quantity" type="Number"/>
-				            <Button xmlns="sap.m" text="Issue" type="Accept" />
+				            <Label text="Quantity"/>
+				            <Input width="50%" id="confirmQty" placeholder="Enter Quantity" type="Number" fieldWidth="100%" value="{Z_PP_PRODORDER_CONFIRM_SRV>Menge}"/>
+				            
+				            <Label text=""/>
+				            <Button xmlns="sap.m" text="Confirm" type="Accept" press=".onHandProdConfirmPress" width="50%"/>
+				            
+			            </sap.ui.layout.form:content>
+			            
+				    </sap.ui.layout.form:SimpleForm>
+				    
+				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Issue Production Order">
+				    	
+				        <sap.ui.layout.form:content>
+				        	
+				        	<Label text="Scan"/>
+				            <Input width="50%" id="issueScan" placeholder="Scan" submit="onChangeIssueBarcode"/>
+				        	
+				            <Label text="Production Order"/>
+				            <Input width="50%" id="issueProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Aufnr}"/>
+				            
+				            <Label text="Material"/>
+				            <Input width="50%" id="issueMatNumber" placeholder="Enter Material Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Matnr}"/>
+				            
+				            <Label text="Storage Location"/>
+				            <Input width="50%" id="issueSloc" placeholder="Enter Storage Location" type="Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Lgort}" class="custom-sloc"/>
+				            <Text width="100%" id="issueSlocName" text="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Lgobe}"/>
+				            
+				            <Label text="Quantity"/>
+				            <Input width="50%" id="issueQty" placeholder="Enter Quantity" type="Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Menge}"/>
+				            
+				            <Label text=""/>
+				            <Button xmlns="sap.m" text="Issue" type="Accept" width="50%" press=".onPressIssueProdOrder" />
 
 			            </sap.ui.layout.form:content>
 			            
 				    </sap.ui.layout.form:SimpleForm>
 				    
-				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" id="form1" class="sapUiMediumMarginTopBottom" title="Reversals">
+				    
+				    
+				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Reversals">
 				    
 				    	<sap.ui.layout.form:content>
 							<Label text="Select"/>
@@ -52,7 +80,7 @@ displayBlock="true">
 				    
 				    </sap.ui.layout.form:SimpleForm>
 				    
-				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" id="form2" class="sapUiMediumMarginTopBottom" title="Transfers">
+				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Transfers">
 				    
 				    	<sap.ui.layout.form:content>
 								

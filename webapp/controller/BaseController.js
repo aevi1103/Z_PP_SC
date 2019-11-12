@@ -84,6 +84,13 @@ sap.ui.define([
 					title: sTitle,
 					type: "Message",
 					state: state,
+					stretch: true,
+					stretchOnPhone: true,
+					horizontalScrolling: false,
+					verticalScrolling: false,
+					width: "100%",
+					contentWidth: "100%",
+					contentHeight: "100%",
 					content: [
 						new sap.m.FlexBox({
 							justifyContent: "Center",
@@ -116,6 +123,8 @@ sap.ui.define([
 			});
 			
 			oDialog.open();
+			
+			return oDialog;
 			
 		},
 		
