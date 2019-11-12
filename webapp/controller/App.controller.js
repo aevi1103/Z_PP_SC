@@ -11,9 +11,9 @@ sap.ui.define([
 		
 		onAfterRendering: function() {
 			
-			//todo: probably all onAfter methods are the same when all apps is setup, refactor and consolidate similar codes
 			this.prodOrderConfirm().onProdOrderConfirmationSet();
 			this.prodOrderIssue().onIssueSet();
+			this.reversals().onProdOperationReversalSet();
 			
 		},
 		
@@ -46,9 +46,7 @@ sap.ui.define([
 					const path = "/ProdOrderConfirmationSet(Werks='',Role='')";
 					model.read(path, {
 						success: function(oData) {
-							
-							console.log(path, oData)
-							
+
 							const { Werks, Role } = oData;
 							if(Werks && Role){
 								
@@ -219,8 +217,6 @@ sap.ui.define([
 					model.read(path, {
 						success: function(oData) {
 							
-							console.log(path, oData)
-							
 							const { Werks, Role } = oData;
 							if (Werks && Role){
 								
@@ -370,15 +366,90 @@ sap.ui.define([
 			const MODEL_NAME ="Z_PP_PROD_REVERSALS_SRV";
 			const model = this.getModel(MODEL_NAME);
 			const bundle = this.getResourceBundle();
-			const state = this.state.prodOrderIssue;
 			
 			return {
 				
 				onProdOperationReversalSet: function(){
 					
+					const showWerkFail = () => {
+						const ttl = bundle.getProperty("plantFailInit");
+						const msg = bundle.getProperty("readPlantFailed");
+						that.showBigDialog(ttl, msg, false);
+					};
+					
+					const path = "/ProdOperationReversalSet(Werks='',Role='')";
+					model.read(path, {
+						success: function(oData){
+							
+							console.log(path, oData)
+							
+							const { Werks, Role } = oData;
+							
+							if (Werks && Role){
+								const oContextPath = `/ProdOperationReversalSet(Werks='${Werks}',Role='${Role}')`;
+								const oContext = new sap.ui.model.Context(model, oContextPath);
+								that.setBindingContext(oContext, MODEL_NAME);
+							} else {
+								showWerkFail();
+							}
+							
+						},
+						error: function(){
+							showWerkFail();
+						}
+					});
+					
+				},
+				
+				handleBarcodeInput: function(barcode, oEvent){
+					
+					const context = that.getBindingContext(MODEL_NAME); 
+					const path = `/BarcodePrefixSet('${encodeURIComponent(barcode)}')`;
+					const oBarcode = oEvent.getSource();
+					
+					const showBarcodeFailure = () => {
+						const ttl = bundle.getProperty("barcodeFailure");
+						const msg = bundle.getProperty("barcodeFailureText") + barcode;
+						that.showBigDialog(ttl, msg, false);
+					};
+					
+					model.read(path, {
+						success: (oData) => {
+							
+							console.log(path, oData);
+							
+							const { Aufnr, HuExt, Matnr } = oData;
+							
+							model.setProperty("Aufnr", Aufnr, context, false); //prod order
+							model.setProperty("HuExt", HuExt, context, false); //handling unit
+							
+							if (Aufnr){
+								this.readBOM(Matnr);
+							}
+							
+							oBarcode.setValue("");
+						}
+					});
+					
+				},
+				
+				readBOM: function(material){
+					
+					const combo = that.getId("reverseSelectMaterial");
+					const context = that.getBindingContext(MODEL_NAME); 
+					const { Aufnr } = context.getProperty();
+					const oFilter = new sap.ui.model.Filter("Aufnr", sap.ui.model.FilterOperator.EQ, Aufnr);
+					
+					combo.getBinding("items").filter(oFilter);
+					
+					if(material !== ""){
+						model.setProperty("Matnr", material, context, false);
+					}
+					
+					console.log('items', combo.getBinding("items"))
 				}
 				
-			}
+			};
 			
 		},
 		
@@ -402,6 +473,23 @@ sap.ui.define([
 		
 		onPressIssueProdOrder: function(){
 			this.prodOrderIssue().issueProductionOrder();
+		},
+		
+		//reversals
+		onRadioBtnChange: function(oEvent){
+			
+			const selectedIndex = oEvent.getParameters().selectedIndex; // 0 - reverse issue, 1 - reverse confirmed
+			const material = this.getId("reverseSelectMaterial");
+			const materialLabel = this.getId("reverseSelectMaterialLbl");
+			
+			// !!(selectedIndex) converts index to boolean, !(selectedIndex) reverse the value because we want to be the first index to be true otherwise false
+			material.setVisible(!(!!selectedIndex));
+			materialLabel.setVisible(!(!!selectedIndex));
+		},
+		
+		onChangeReverseBarcode: function (oEvent) {
+			const barcode = oEvent.getParameter("value");
+			this.reversals().handleBarcodeInput(barcode, oEvent);
 		}
 		
 		

@@ -1,6 +1,7 @@
 <mvc:View 
 xmlns:mvc="sap.ui.core.mvc"
 xmlns:html="http://www.w3.org/1999/xhtml"
+xmlns:core="sap.ui.core"
 xmlns="sap.m"
 controllerName="com.federalmogul.sc.Z_PP_SC.controller.App"
 displayBlock="true">
@@ -63,18 +64,29 @@ displayBlock="true">
 				    
 				    	<sap.ui.layout.form:content>
 							<Label text="Select"/>
-							<RadioButtonGroup xmlns="sap.m" columns="2" id="group0">
+							<RadioButtonGroup xmlns="sap.m" columns="2" id="group0" select=".onRadioBtnChange">
 						        <buttons>
 						            <RadioButton text="Reverse Issued Stock" id="button2"/>
 						            <RadioButton text="Reverse Confirmed Production" id="button3"/>
 					            </buttons>
 						    </RadioButtonGroup>
 						    
-						    <Label text="Reverse"/>
-				            <Input width="100%" id="reverseProdOrder" placeholder="Enter Production Order" type="Number"/>
-				            <Input width="100%" id="reverseQty" placeholder="Enter Quantity" type="Number"/>
-				            <Input width="100%" enabled="false"/>
-				            <Button xmlns="sap.m" text="Reverse" type="Accept" />
+						    <Label text="Scan"/>
+				            <Input width="50%" id="reverseScan" placeholder="Scan" submit=".onChangeReverseBarcode" />
+						    
+						    <Label text="Production Order"/>
+				            <Input width="50%" id="reverseProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_PROD_REVERSALS_SRV>Aufnr}"/>
+				            
+				            <Label text="Material Number" visible="true" id="reverseSelectMaterialLbl" />
+				            <ComboBox id="reverseSelectMaterial" visible="true" width="50%" selectedKey="{Z_PP_PROD_REVERSALS_SRV>Matnr}" items="{Z_PP_PROD_REVERSALS_SRV>/BOMSet}">
+				            	<core:Item key="{Z_PP_PROD_REVERSALS_SRV>Material}" text="{Z_PP_PROD_REVERSALS_SRV>Material}" />
+				            </ComboBox>
+				            
+				            <Label text="Quantity"/>
+				            <Input width="50%" id="reverseQty" placeholder="Enter Quantity" type="Number" value="{Z_PP_PROD_REVERSALS_SRV>Menge}"/>
+				            
+				            <Label text=""/>
+				            <Button xmlns="sap.m" text="Reverse" type="Accept" press=".onPressReverse" width="50%" />
 							
 						</sap.ui.layout.form:content>
 				    
