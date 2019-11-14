@@ -135,7 +135,39 @@ sap.ui.define([
 			});
 		},
 		
-		showMessageToast: function(){
+		setValueState: function(oSource, sValue= "", errorMsg = ""){
+			if (sValue) {
+				oSource.setValueState("Success");
+			} else {
+				oSource.setValueState("Error");
+				oSource.setValueStateText(errorMsg);
+			}
+			return oSource;
+		},
+		
+		resetField: function(oSource){
+			
+			const type = oSource.getMetadata().getName();
+			
+			switch (type) {
+				
+				case "sap.m.Input":
+					oSource.setValue("");
+					oSource.setValueState("None");
+					break;
+					
+				case "sap.m.ComboBox":
+					oSource.setSelectedKey("");
+					oSource.setValueState("None");
+					break;
+					
+				case "sap.m.Text":
+					oSource.setText("");
+					break;
+				
+			}
+			
+			return oSource;
 			
 		}
 		

@@ -98,6 +98,7 @@ displayBlock="true">
 				    
 				    </sap.ui.layout.form:SimpleForm>
 				    
+				    <!--Transfers-->
 				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Transfers">
 				    
 				    	<sap.ui.layout.form:content>
@@ -106,21 +107,26 @@ displayBlock="true">
 				            <Input width="50%" id="transferScan" placeholder="Scan" submit=".onChangeTransferScan" />
 				            
 				            <Label text="Material Number"/>
-				            <Input width="50%" id="trMatNumber" placeholder="Select Material Number"/>
+				            <Input width="50%" id="trMatNumber" placeholder="Select Material Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>Matnr}" />
 				            
 				            <Label text="Quantity"/>
-				            <Input width="50%" id="trQty" placeholder="Enter Quantity" type="Number"/>
+				            <Input width="50%" id="trQty" placeholder="Enter Quantity" type="Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>Menge}" liveChange=".onQtyChange"/>
 				            
 				            <Label text="Storgage Location (from)"/>
-				            <Input width="50%" id="trFromSloc" placeholder="From SLOC" type="Number"/>
-				            <Text width="100%" id="transferSlocFrom"/>
+				            <Input width="50%" id="trFromSloc" placeholder="From SLOC" type="Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>LgortVon}" liveChange="onSlocChange"/>
+				            <Text width="100%" id="trFromSlocName"/>
 				            
 				            <Label text="Storgage Location (to)"/>
-				            <Input width="50%" id="trToSloc" placeholder="To SLOC" type="Number"/>
-				            <Text width="100%" id="transferSlocTo"/>
+				            <Input width="50%" id="trToSloc" placeholder="To SLOC" type="Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>LgortNach}" liveChange="onSlocChange"/>
+				            <Text width="100%" id="trToSlocName"/>
+				            
+				            <Label text="Batch" visible="false" id="transferBatchSelectLbl" />
+				            <ComboBox id="transferBatchSelect" visible="false" editable="true" width="50%" selectedKey="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}" items="{ZRF_TRANSFER_STOCK_IM_SRV>/BatchSetSet}" change=".onTransferbatchSelect">
+				            	<core:Item key="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}" text="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}-{ZRF_TRANSFER_STOCK_IM_SRV>BatchText}" />
+				            </ComboBox>
 				            
 				            <Label text=""/>
-				            <Button xmlns="sap.m" text="Transfer" type="Accept" width="50%" />
+				            <Button xmlns="sap.m" text="Transfer" type="Accept" width="50%" press=".onPressTransfer" />
 							
 						</sap.ui.layout.form:content>
 				    

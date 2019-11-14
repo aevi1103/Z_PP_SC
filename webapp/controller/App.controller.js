@@ -24,6 +24,12 @@ sap.ui.define([
 			}
 		},
 		
+		/*
+		=====================================================================================================
+		Methods
+		=====================================================================================================
+		*/
+		
 		prodOrderConfirm: function() {
 			
 			const that = this;
@@ -479,8 +485,8 @@ sap.ui.define([
 				confirmReversal: function(){
 					
 					const showError = (oDataMsg) => {
-						const ttl = bundle.getProperty("issueError");
-						const msg = bundle.getProperty("issueError") + `\n${oDataMsg}` ;
+						const ttl = bundle.getProperty("reverseFailureTitle");
+						const msg = bundle.getProperty("reverseFailureText") + `\n${oDataMsg}` ;
 						that.showBigDialog(ttl, msg, false);
 					};
 					
@@ -505,47 +511,54 @@ sap.ui.define([
 						FlagRevtype
 					};
 					
-					const path = "/ProdOperationReversalSet";
-					model.create(path, payload, {
-						success: function(oData){
-							
-							const { Msg} = oData;
-							
-							if (!Msg) {
+					//todo: batch
+					if (Werks && Aufnr && Vornr && Number(Menge) && Matnr && FlagRevtype) {
+						
+						const path = "/ProdOperationReversalSet";
+						model.create(path, payload, {
+							success: function(oData){
 								
-								busyDialog.close();
-								const ttl = bundle.getProperty("reverseSuccessTitle");
-								const msg = bundle.getProperty("reverseSuccessText") + `\n${Msg}` ;
-								const dialog = that.showBigDialog(ttl, msg); //show dialog
-								setTimeout(() => dialog.close(), 3000); //close dialog after 3 sec
+								const { Msg} = oData;
 								
-								//clear fields
-								that.getId("reverseProdOrder").setValue("");
-								that.getId("reverseQty").setValue("0.000");
-								that.getId("reverseQty").setValueState("None");
+								if (!Msg) {
+									
+									busyDialog.close();
+									const ttl = bundle.getProperty("reverseSuccessTitle");
+									const msg = bundle.getProperty("reverseSuccessText") + `\n${Msg}` ;
+									const dialog = that.showBigDialog(ttl, msg); //show dialog
+									setTimeout(() => dialog.close(), 3000); //close dialog after 3 sec
+									
+									//clear fields
+									that.getId("reverseProdOrder").setValue("");
+									that.getId("reverseQty").setValue("0.000");
+									that.getId("reverseQty").setValueState("None");
+									
+									that.getId("reverseSelectMaterial").setSelectedKey("");
+									that.getId("reverseBatchSelect").setSelectedKey("");
 								
-								that.getId("reverseSelectMaterial").setSelectedKey("");
-								that.getId("reverseBatchSelect").setSelectedKey("");
-							
-								that.getId("reverseSelectMaterial").getBinding("items").filter(null);
-								if (oData.Batch) {
-									that.getId("reverseBatchSelect").getBinding("items").filter(null);
+									that.getId("reverseSelectMaterial").getBinding("items").filter(null);
+									if (oData.Batch) {
+										that.getId("reverseBatchSelect").getBinding("items").filter(null);
+									}
+									
+									setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+									
+								} else {
+									busyDialog.close();
+									showError();
 								}
 								
-								setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
-								
-							} else {
+							},
+							error: function(error){
 								busyDialog.close();
-								showError();
+								showError(error.message);
 							}
 							
-						},
-						error: function(error){
-							busyDialog.close();
-							showError(error.message);
-						}
+						});
 						
-					});
+					}
+					
+					
 					
 				}
 				
@@ -559,6 +572,17 @@ sap.ui.define([
 			const MODEL_NAME ="ZRF_TRANSFER_STOCK_IM_SRV";
 			const model = this.getModel(MODEL_NAME);
 			const bundle = this.getResourceBundle();
+			
+			const material = that.getId("trMatNumber");
+			const qty = that.getId("trQty");
+			
+			const slocFrom = that.getId("trFromSloc");
+			const slocFromName = that.getId("trFromSlocName");
+			
+			const slocTo = that.getId("trToSloc");
+			const slocToName = that.getId("trToSlocName");
+			
+			const batchInput = that.getId("transferBatchSelect");
 			
 			return {
 				
@@ -574,17 +598,14 @@ sap.ui.define([
 					model.read(path, {
 						success: function(oData){
 			
-							console.log(path, oData);
-				
 							const { Werks } = oData;
-							
-							// if (Werks !== "0000"){
-							// 	const oContextPath = `/ProdOperationReversalSet(Werks='${Werks}',Role='${Role}')`;
-							// 	const oContext = new sap.ui.model.Context(model, oContextPath);
-							// 	that.setBindingContext(oContext, MODEL_NAME);
-							// } else {
-							// 	showWerkFail();
-							// }
+							if (Werks !== "0000"){
+								const oContextPath = `/TransferStockSet('${Werks}')`;
+								const oContext = new sap.ui.model.Context(model, oContextPath);
+								that.setBindingContext(oContext, MODEL_NAME);
+							} else {
+								showWerkFail();
+							}
 							
 						},
 						error: function(){
@@ -592,14 +613,248 @@ sap.ui.define([
 						}
 					});
 					
+				},
+				
+				handleBarcodeInput: function(barcode, oEvent, fnCallback = () => {}, isSlocFrom = undefined){
+					
+					const context = that.getBindingContext(MODEL_NAME); 
+					const path = `/BarcodePrefixSet('${encodeURIComponent(barcode)}')`;
+					const oBarcode = typeof oEvent !== "undefined" ? oEvent.getSource() : oEvent;
+					
+					const showBarcodeFailure = () => {
+						const ttl = bundle.getProperty("barcodeFailure");
+						const msg = bundle.getProperty("barcodeFailureText") + barcode;
+						that.showBigDialog(ttl, msg, false);
+					};
+					
+					const setSlocValueState = (oSource, sValue) => {
+						if (sValue) {
+							oSource.setValueState("Success");
+						} else {
+							oSource.setValueState("Error");
+							oSource.setValueStateText("Invalid storage location.");
+						}
+					};
+					
+					model.read(path, {
+						success: (oData) => {
+							
+							const { 
+								Matnr, //material
+								Menge, //qty
+								Lgort, //sloc from
+								LgortN, //sloc to
+								Lgobe, //sloc from name
+								Batch 
+							} = oData;
+							
+							//check is material input is empty, if yes update value
+							if (typeof isSlocFrom !== "boolean" && !material.getValue()) { 
+								model.setProperty("Matnr", Matnr, context, false);
+								setSlocValueState(material, Matnr);
+							} 
+							
+							//check is qty input is empty, if yes update value
+							if (typeof isSlocFrom !== "boolean" && !Number(qty.getValue())) { 
+								model.setProperty("Menge", Menge, context, false); 
+								setSlocValueState(qty, Menge);
+							} 
+							
+							if (typeof isSlocFrom !== "boolean") { //handle barcode scan
+								
+								if(Lgort && !LgortN){ //check if sloc from is not empty and sloc to is empty
+							
+									if(!slocFromName.getText()){ //check is input sloc from is not empty
+									
+										model.setProperty("LgortVon", Lgort, context, false); //sloc from
+										slocFromName.setText(Lgobe); //sloc from name
+										setSlocValueState(slocFrom, Lgobe); //assign value state
+										
+									} else {
+										model.setProperty("LgortNach", Lgort, context, false); //sloc to
+										slocToName.setText(Lgobe); //sloc to name
+										setSlocValueState(slocTo, Lgobe); //assign value state
+										
+									}
+									
+								} else if (Lgort && LgortN){
+									
+									model.setProperty("LgortVon", Lgort, context, false); //sloc from
+									slocFromName.setText(Lgobe); //sloc from name
+									
+									model.setProperty("LgortNach", LgortN, context, false); //sloc from
+									slocToName.setText("");
+									
+									setTimeout(() => slocToName.focus(), 900);
+									
+								}
+								
+							} else { //handle sloc on change
+								
+								if (isSlocFrom){
+									slocFromName.setText("");
+									model.setProperty("LgortVon", Lgort, context, false); //sloc from
+									slocFromName.setText(Lgobe); //sloc from name
+								} else {
+									slocToName.setText("");
+									model.setProperty("LgortNach", Lgort, context, false); //sloc to
+									slocToName.setText(Lgobe); //sloc to name
+								}
+								
+							}
+							
+							this.getBatch(Batch);
+							if (oEvent) { oBarcode.setValue(""); }
+							
+							fnCallback(oData);
+							
+						},
+						error: function () {
+							
+							if (typeof isSlocFrom === "boolean") {
+								if (isSlocFrom){
+									slocFromName.setText("");
+									model.setProperty("LgortVon", "", context, false); //sloc from
+									slocFromName.setText(""); //sloc from name
+									setSlocValueState(slocFrom, ""); //assign value state
+								} else {
+									slocToName.setText("");
+									model.setProperty("LgortNach", "", context, false); //sloc to
+									slocToName.setText(""); //sloc to name
+									setSlocValueState(slocTo, ""); //assign value state
+								}
+							} else {
+								showBarcodeFailure();
+							}
+
+						}
+					});
+					
+				},
+				
+				getBatch: function(batchVal){
+					
+					const batchLbl = that.getId("transferBatchSelectLbl");
+					const batch = that.getId("transferBatchSelect");
+					
+					const context = that.getBindingContext(MODEL_NAME); 
+					const { Matnr, Werks } = context.getProperty();
+					
+					const filterMaterial = new sap.ui.model.Filter("Matnr", sap.ui.model.FilterOperator.EQ, Matnr);
+					const filterWerks = new sap.ui.model.Filter("Werks", sap.ui.model.FilterOperator.EQ, Werks);
+					
+					if (batchVal){
+						batchLbl.setVisible(true);
+						batch.setVisible(true);
+						
+						if (batchVal !== "X") {
+							const filterBatch = new sap.ui.model.Filter("Batch", sap.ui.model.FilterOperator.EQ, batchVal);
+							batch.getBinding("items").filter([filterMaterial, filterWerks, filterBatch]);
+						} else {
+							batch.getBinding("items").filter([filterMaterial, filterWerks]);
+						}
+						
+						batch.setSelectedKey(batchVal);
+						batch.setValue(batchVal);
+						
+					} else {
+						batchLbl.setVisible(false);
+						batch.setVisible(false);
+					}
+					
+				},
+				
+				confirmTransfer: function(){
+					
+					const showError = (oDataMsg) => {
+						const ttl = bundle.getProperty("transferFailureTitle");
+						const msg = bundle.getProperty("transferFailureText") + `\n${oDataMsg}` ;
+						that.showBigDialog(ttl, msg, false);
+					};
+					
+					const busyDialog = that.showBusyDialog(
+												bundle.getProperty("BusyDialogTitle"),
+												bundle.getProperty("BusyDialogText")
+											);
+					
+					that.setValueState(material, material.getValue(), "Invalid material.");
+					that.setValueState(qty, Number(qty.getValue()), `Quantity entered (${Number(qty.getValue())}) must be greater than zero.`, true);
+					that.setValueState(slocFrom, slocFrom.getValue(), "Invalid storage location (from).");
+					that.setValueState(slocTo, slocTo.getValue(), "Invalid storage location (to).");
+					that.setValueState(batchInput, batchInput.getSelectedKey(), "Invalid Batch.");
+					
+					const context = that.getBindingContext(MODEL_NAME);
+					const { Werks, Matnr, Menge, LgortVon, LgortNach, Batch } = context.getProperty();
+					
+					//todo: batch
+					if (Werks && Matnr && Number(Menge) && LgortVon && LgortNach) {
+						
+						busyDialog.open();
+						
+						const payload = {
+							Werks,
+							Bwart: "311",
+							HuExt: undefined,
+							Matnr,
+							Menge: Menge.toString(),
+							LgortVon,
+							LgortNach,
+							Batch
+						};
+						
+						const path = "/TransferStockSet";
+						model.create(path, payload, {
+							success: function(oData) {
+								
+								const { Msg } = oData;
+								
+								if (!Msg){
+									
+									busyDialog.close();
+									const ttl = bundle.getProperty("transferSuccessTitle");
+									const msg = bundle.getProperty("transferSuccessText") + `\n${Msg}` ;
+									const dialog = that.showBigDialog(ttl, msg); //show dialog
+									setTimeout(() => dialog.close(), 3000); //close dialog after 3 sec
+									
+									//reset fields
+									that.resetField(material);
+									that.resetField(qty);
+									that.resetField(slocFrom);
+									that.resetField(slocFromName);
+									that.resetField(slocTo);
+									that.resetField(slocToName);
+									that.resetField(batchInput);
+									setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+									
+								} else {
+									busyDialog.close();
+									showError();
+								}
+								
+							},
+							error: function(error){
+								busyDialog.close();
+								showError(error.message);
+							}
+						});
+						
+					}
 				}
 				
-			}
+			};
 			
 		},
 		
-		/**** Events ***/
-		//utils
+		/*
+		=====================================================================================================
+		Events
+		=====================================================================================================
+		*/
+		
+		/*
+		Utils
+		------------------------------------------------------------------------------------------------------
+		*/
 		checkIfQtyGreaterThanZero: function(oEvent){
 			
 			const source = oEvent.getSource();
@@ -617,7 +872,10 @@ sap.ui.define([
 			this.checkIfQtyGreaterThanZero(oEvent);
 		},
 		
-		//confirm prod
+		/*
+		Comfirm Prod
+		------------------------------------------------------------------------------------------------------
+		*/
 		onHandProdConfirmPress: function(){
 			this.prodOrderConfirm().getBarcodePrefixSet();
 		},
@@ -627,7 +885,10 @@ sap.ui.define([
 			this.prodOrderConfirm().getBarcodePrefixSet(barcode, oEvent);
 		},
 		
-		//issue prod
+		/*
+		issue Prod
+		------------------------------------------------------------------------------------------------------
+		*/
 		onChangeIssueBarcode: function(oEvent){
 			const barcode = oEvent.getParameter("value");
 			this.prodOrderIssue().handleBarcodeInput(barcode, oEvent);
@@ -637,7 +898,10 @@ sap.ui.define([
 			this.prodOrderIssue().issueProductionOrder();
 		},
 		
-		//reversals
+		/*
+		reversals
+		------------------------------------------------------------------------------------------------------
+		*/
 		onRadioBtnChange: function(oEvent){
 			
 			const selectedIndex = oEvent.getParameters().selectedIndex; // 0 - reverse issue, 1 - reverse confirmed
@@ -675,8 +939,58 @@ sap.ui.define([
 		
 		onPressReverse: function() {
 			this.reversals().confirmReversal();
-		}
+		},
 		
+		/*
+		transfers
+		------------------------------------------------------------------------------------------------------
+		*/
+		
+		onChangeTransferScan: function(oEvent) {
+			const barcode = oEvent.getParameter("value");
+			this.transfers().handleBarcodeInput(barcode, oEvent);
+		},
+		
+		onSlocChange: function(oEvent){
+			
+			const value = oEvent.getParameter("value");
+			// if (!value) return;
+			
+			const { binding: { sPath } } = oEvent.getSource().getBindingInfo("value");
+			const source = oEvent.getSource();
+			
+			let barcode = "";
+			let bIsSlocFrom = false;
+			
+			switch(sPath){
+				case "Matnr":
+					barcode = `(91)${value}`;
+					break;
+				case "Menge":
+					barcode = `(30)${value}`;
+					break;
+				case "LgortVon":
+					barcode = `(414)${value}`;
+					bIsSlocFrom = true;
+					break;
+				case "LgortNach":
+					barcode = `(414)${value}`;
+					bIsSlocFrom = false;
+					break;
+			}
+			
+			const fnCallback = oData => {
+				const { Lgobe } = oData;
+				this.setValueState(source, Lgobe, "Enter valid storage location");
+			};
+			
+			this.transfers().handleBarcodeInput(barcode, undefined, fnCallback, bIsSlocFrom);        
+			
+		},
+		
+		onPressTransfer: function(){
+			this.transfers().confirmTransfer();
+		}
 		
 	});
 	
