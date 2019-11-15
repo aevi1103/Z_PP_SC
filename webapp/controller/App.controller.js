@@ -150,7 +150,7 @@ sap.ui.define([
 						busyDialog.open();
 						
 						model.create(path, payload, {
-							success: function(oData){
+							success: (oData) => {
 								
 								const { Msg } = oData;
 								
@@ -161,14 +161,7 @@ sap.ui.define([
 									const dialog = that.showBigDialog(ttl, msg);
 									setTimeout(() => dialog.close(), 3000); //close dialog after 3 sec
 	
-									//reset fields
-									that.resetField(order);
-									that.resetField(qty);
-									that.resetField(materialInput);
-									that.resetField(slocInput);
-									that.resetField(slocNameInput);
-									
-									setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+									this.reset();
 									
 								} else {
 									showError(Msg);
@@ -183,8 +176,26 @@ sap.ui.define([
 							}
 						});
 						
+					} else {
+						MessageToast.show(bundle.getProperty("incompleteFields"));
 					}
 
+				},
+				
+				reset: function(isDelayMsg = true){
+					
+					that.resetField(order);
+					that.resetField(qty);
+					that.resetField(materialInput);
+					that.resetField(slocInput);
+					that.resetField(slocNameInput);
+					
+					if (!isDelayMsg) { 
+						MessageToast.show(bundle.getProperty("resetFieldText"));
+					} else { 
+						setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+					}
+						
 				}
 				
 			};
@@ -251,9 +262,9 @@ sap.ui.define([
 					};
 					
 					model.read(path, {
-						success: function(oData){
+						success: (oData) => {
 						
-							const {Aufnr, Lgort, Lgobe, HuExt, Matnr, Menge } = oData;
+							const {Aufnr, Lgort, Lgobe, HuExt, Matnr, Menge, Batch } = oData;
 							const contextProps = context.getProperty();
 							
 							//show barcode error if no SLOC defined
@@ -272,6 +283,8 @@ sap.ui.define([
 							model.setProperty("Menge", (!!Number(Menge) ? Number(Menge) : 0) , context, false); //qty
 							model.setProperty("HuExt", HuExt, context, false); //handling unit
 							
+							this.getBatches(Batch, state.isFirstScan);
+							
 							//if not first scan show toast msg
 							if (!state.isFirstScan) {
 								MessageToast.show("Please scan now order to be issued.");
@@ -285,11 +298,6 @@ sap.ui.define([
 							that.setValueState(slocInput, Lgort, "Invalid storage location.");
 							that.setValueState(qtyInput, Number(Menge), `Quantity entered (${Number(Menge)}) must be greater than zero.`);
 							
-							
-							//todo: batches
-							//todo: work center select, prod order selection 
-							
-									
 						},
 						error: function(){
 							showBarcodeFailure();
@@ -297,6 +305,40 @@ sap.ui.define([
 						
 					});
 					
+				},
+				
+				getBatches: function(batchVal, isFirstScan = true) {
+				
+					if(!isFirstScan) return;
+				
+					const batchLbl = that.getId("issueBatchSelectLbl");
+					const batch = that.getId("issueBatchSelect");
+					
+					const context = that.getBindingContext(MODEL_NAME); 
+					const { Matnr, Werks } = context.getProperty();
+					
+					const filterMaterial = new sap.ui.model.Filter("Matnr", sap.ui.model.FilterOperator.EQ, Matnr);
+					const filterWerks = new sap.ui.model.Filter("Werks", sap.ui.model.FilterOperator.EQ, Werks);
+					
+					if (batchVal){
+						batchLbl.setVisible(true);
+						batch.setVisible(true);
+						
+						if (batchVal !== "X") {
+							const filterBatch = new sap.ui.model.Filter("Batch", sap.ui.model.FilterOperator.EQ, batchVal);
+							batch.getBinding("items").filter([filterMaterial, filterWerks, filterBatch]);
+						} else {
+							batch.getBinding("items").filter([filterMaterial, filterWerks]);
+						}
+						
+						batch.setSelectedKey(batchVal);
+						batch.setValue(batchVal);
+						
+					} else {
+						batchLbl.setVisible(false);
+						batch.setVisible(false);
+					}
+
 				},
 				
 				issueProductionOrder: function(){
@@ -337,7 +379,7 @@ sap.ui.define([
 						
 						const path = "/IssueSet";
 						model.create(path, payload, {
-							success: function(oData){
+							success: (oData) => {
 								
 								const { Msg } = oData;
 								
@@ -349,14 +391,7 @@ sap.ui.define([
 									const dialog = that.showBigDialog(ttl, msg); //show dialog
 									setTimeout(() => dialog.close(), 3000); //close dialog after 3 sec
 									
-									//reset fields
-									that.resetField(orderInput);
-									that.resetField(materialInput);
-									that.resetField(slocInput);
-									that.resetField(qtyInput);
-									that.resetField(slocNameInput);
-									
-									setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+									this.reset();
 									
 								} else {
 									busyDialog.close();
@@ -370,10 +405,26 @@ sap.ui.define([
 							}
 						});
 						
+					} else {
+						MessageToast.show(bundle.getProperty("incompleteFields"));
+					}
+
+				},
+				
+				reset: function(isDelayMsg = true){
+				
+					that.resetField(orderInput);
+					that.resetField(materialInput);
+					that.resetField(slocInput);
+					that.resetField(qtyInput);
+					that.resetField(slocNameInput);
+					
+					if (!isDelayMsg) { 
+						MessageToast.show(bundle.getProperty("resetFieldText"));
+					} else { 
+						setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
 					}
 					
-					
-				
 				}
 				
 			};
@@ -544,7 +595,7 @@ sap.ui.define([
 						
 						const path = "/ProdOperationReversalSet";
 						model.create(path, payload, {
-							success: function(oData){
+							success: (oData) => {
 								
 								const { Msg } = oData;
 								
@@ -556,17 +607,7 @@ sap.ui.define([
 									const dialog = that.showBigDialog(ttl, msg); //show dialog
 									setTimeout(() => dialog.close(), 3000); //close dialog after 3 sec
 									
-									//reset fields
-									that.resetField(orderInput);
-									that.resetField(materialSelect);
-									that.resetField(qtyInput);
-									
-									if (oData.Batch) {
-										that.resetField(batchSelect);
-										that.getId("reverseBatchSelect").getBinding("items").filter(null);
-									}
-									
-									setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+									this.reset();
 									
 								} else {
 									busyDialog.close();
@@ -581,9 +622,28 @@ sap.ui.define([
 							
 						});
 						
+					} else {
+						MessageToast.show(bundle.getProperty("incompleteFields"));
+					}
+
+				},
+				
+				reset: function(isDelayMsg = true){
+					
+					that.resetField(orderInput);
+					that.resetField(materialSelect);
+					that.resetField(qtyInput);
+					
+					if (batchSelect.getSelectedKey()) {
+						that.resetField(batchSelect);
+						that.getId("reverseBatchSelect").getBinding("items").filter(null);
 					}
 					
-					
+					if (!isDelayMsg) { 
+						MessageToast.show(bundle.getProperty("resetFieldText"));
+					} else { 
+						setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+					}
 					
 				}
 				
@@ -826,7 +886,7 @@ sap.ui.define([
 						
 						const path = "/TransferStockSet";
 						model.create(path, payload, {
-							success: function(oData) {
+							success: (oData) => {
 								
 								const { Msg } = oData;
 								
@@ -838,21 +898,7 @@ sap.ui.define([
 									const dialog = that.showBigDialog(ttl, msg); //show dialog
 									setTimeout(() => dialog.close(), 3000); //close dialog after 3 sec
 									
-									//reset fields
-									that.resetField(material);
-									that.resetField(qty);
-									that.resetField(slocFrom);
-									that.resetField(slocFromName);
-									that.resetField(slocTo);
-									that.resetField(slocToName);
-									that.resetField(batchInput);
-									
-									if (oData.Batch) {
-										that.resetField(batchInput);
-										that.getId("transferBatchSelect").getBinding("items").filter(null);
-									}
-									
-									setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+									this.reset();
 									
 								} else {
 									busyDialog.close();
@@ -866,7 +912,34 @@ sap.ui.define([
 							}
 						});
 						
+					} else {
+						MessageToast.show(bundle.getProperty("incompleteFields"));
 					}
+					
+				},
+				
+				reset: function(isDelayMsg = true){
+						
+					//reset fields
+					that.resetField(material);
+					that.resetField(qty);
+					that.resetField(slocFrom);
+					that.resetField(slocFromName);
+					that.resetField(slocTo);
+					that.resetField(slocToName);
+					that.resetField(batchInput);
+					
+					if (batchInput.getSelectedKey()) {
+						that.resetField(batchInput);
+						that.getId("transferBatchSelect").getBinding("items").filter(null);
+					}
+					
+					if (!isDelayMsg) { 
+						MessageToast.show(bundle.getProperty("resetFieldText"));
+					} else { 
+						setTimeout(() => MessageToast.show(bundle.getProperty("resetFieldText")), 3500); //close dialog after 3.5 sec
+					}
+					
 				}
 				
 			};
@@ -901,6 +974,15 @@ sap.ui.define([
 		},
 		
 		/*
+		Formatter
+		------------------------------------------------------------------------------------------------------
+		*/
+		
+		// formatQty: function(sValue){
+		// 	return sValue === "" ? "" : parseFloat(sValue).toFixed(0);
+		// },
+		
+		/*
 		Comfirm Prod
 		------------------------------------------------------------------------------------------------------
 		*/
@@ -909,11 +991,7 @@ sap.ui.define([
 			const barcode = oEvent.getParameter("value");
 			this.prodOrderConfirm().getBarcodePrefixSet(barcode, oEvent);
 		},
-		
-		onHandProdConfirmPress: function(){
-			this.prodOrderConfirm().productionConfirmation();
-		},
-		
+	
 		/*
 		issue Prod
 		------------------------------------------------------------------------------------------------------
@@ -921,10 +999,6 @@ sap.ui.define([
 		onChangeIssueBarcode: function(oEvent){
 			const barcode = oEvent.getParameter("value");
 			this.prodOrderIssue().handleBarcodeInput(barcode, oEvent);
-		},
-		
-		onPressIssueProdOrder: function(){
-			this.prodOrderIssue().issueProductionOrder();
 		},
 		
 		/*
@@ -964,10 +1038,6 @@ sap.ui.define([
 				source.setValueStateText("Material does not exist");
 			}
 
-		},
-		
-		onPressReverse: function() {
-			this.reversals().confirmReversal();
 		},
 		
 		/*
@@ -1017,8 +1087,60 @@ sap.ui.define([
 			
 		},
 		
-		onPressTransfer: function(){
-			this.transfers().confirmTransfer();
+		/*
+		Icon Tab
+		------------------------------------------------------------------------------------------------------
+		*/
+		onSelectIconTab: function(oEvent){
+			
+			const key = oEvent.getParameters().selectedKey.toLowerCase().trim();
+			const send = this.byId("idBtnSend");
+			const bundle = this.getResourceBundle();
+			
+			if (key.includes("confirm")){
+				send.setText(bundle.getProperty("btnSendConfirmText"));
+			} else if (key.includes("issue")) {
+				send.setText(bundle.getProperty("btnSendIssueText"));
+			} else if (key.includes("reversal")){
+				send.setText(bundle.getProperty("btnSendReverseText"));
+			} else if (key.includes("transfer")){
+				send.setText(bundle.getProperty("btnSendTransferText"));
+			}
+			
+		},
+		
+		onSendPress: function(){
+			
+			const iconTabbar = this.byId("idIconTabBarMulti");
+			const key = iconTabbar.getSelectedKey().toLowerCase().trim();
+
+			if (key.includes("confirm")){
+				this.prodOrderConfirm().productionConfirmation();
+			} else if (key.includes("issue")) {
+				this.prodOrderIssue().issueProductionOrder();
+			} else if (key.includes("reversal")){
+				this.reversals().confirmReversal();
+			} else if (key.includes("transfer")){
+				this.transfers().confirmTransfer();
+			}
+			
+		},
+		
+		onResetPress: function(){
+			
+			const iconTabbar = this.byId("idIconTabBarMulti");
+			const key = iconTabbar.getSelectedKey().toLowerCase().trim();
+
+			if (key.includes("confirm")){
+				this.prodOrderConfirm().reset(false);
+			} else if (key.includes("issue")) {
+				this.prodOrderIssue().reset(false);
+			} else if (key.includes("reversal")){
+				this.reversals().reset(false);
+			} else if (key.includes("transfer")){
+				this.transfers().reset(false);
+			}
+			
 		}
 		
 	});

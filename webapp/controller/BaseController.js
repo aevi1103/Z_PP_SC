@@ -2,14 +2,18 @@ sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/UIComponent",
 	"sap/m/library",
-	"sap/m/Dialog"
-], function (Controller, UIComponent, mobileLibrary, Dialog) {
+	"sap/m/Dialog",
+	"../model/formatter"
+], function (Controller, UIComponent, mobileLibrary, Dialog, formatter) {
 	"use strict";
 
 	// shortcut for sap.m.URLHelper
 	var URLHelper = mobileLibrary.URLHelper;
 
 	return Controller.extend("com.federalmogul.sc.Z_PP_SC.controller.BaseController", {
+		
+		formatter: formatter,
+		
 		/**
 		 * Convenience method for accessing the router.
 		 * @public

@@ -1,5 +1,6 @@
 <mvc:View 
 xmlns:mvc="sap.ui.core.mvc"
+xmlns:l="sap.ui.layout"
 xmlns:html="http://www.w3.org/1999/xhtml"
 xmlns:core="sap.ui.core"
 xmlns="sap.m"
@@ -12,140 +13,171 @@ displayBlock="true">
 			<Page title="{i18n>title}">
 				<content>
 					
-					<!--Confirm Order-->
-				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Confirm Production Order">
-				    	
-				        <sap.ui.layout.form:content>
-				        	
-				        	<Label text="Scan"/>
-				            <Input width="100%" id="confirmScan" placeholder="Scan" submit="onPressComfirmScan"/>
-				        	
-				            <Label text="Production Order"/>
-				            <Input width="100%" id="confirmProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_PRODORDER_CONFIRM_SRV>Aufnr}"/>
-				            
-				            <Label text="Material"/>
-				            <Input width="100%" id="confirmMaterial" enabled="false" value="{Z_PP_PRODORDER_CONFIRM_SRV>Matnr}"/>
-				            
-				            <Label text="Quantity"/>
-				            <Input width="100%" id="confirmQty" placeholder="Enter Quantity" type="Number" value="{Z_PP_PRODORDER_CONFIRM_SRV>Menge}" liveChange=".onQtyChange"/>
-				            
-				            <Label text="Receipt Storage Location"/>
-				            <Input width="100%" id="confirmSloc" enabled="false" value="{Z_PP_PRODORDER_CONFIRM_SRV>Lgort}"/>
-				            <Input width="100%" id="confirmSlocName" enabled="false" value="{Z_PP_PRODORDER_CONFIRM_SRV>Lgobe}"/>
-				            <!--<Text width="100%" id="confirmSlocName" text="{Z_PP_PRODORDER_CONFIRM_SRV>Lgobe}"/>-->
-				            
-				            <Label text=""/>
-				            <Button xmlns="sap.m" text="Confirm" type="Accept" press=".onHandProdConfirmPress" width="100%"/>
-				            
-			            </sap.ui.layout.form:content>
-			            
-				    </sap.ui.layout.form:SimpleForm>
-				    
-				    <!--Issue Order-->
-				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Issue Production Order">
-				    	
-				        <sap.ui.layout.form:content>
-				        	
-				        	<Label text="Scan"/>
-				            <Input width="100%" id="issueScan" placeholder="Scan" submit="onChangeIssueBarcode"/>
-				        	
-				            <Label text="Production Order"/>
-				            <Input width="100%" id="issueProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Aufnr}"/>
-				            
-				            <Label text="Material"/>
-				            <Input width="100%" id="issueMatNumber" placeholder="Enter Material Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Matnr}"/>
-				            
-				            <Label text="Storage Location"/>
-				            <Input width="100%" id="issueSloc" placeholder="Enter Storage Location" type="Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Lgort}" />
-				            <Input width="100%" id="issueSlocName" enabled="false" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Lgobe}" />
-				            <!--<Text width="100%" id="issueSlocName" text="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Lgobe}"/>-->
-				            
-				            <Label text="Quantity"/>
-				            <Input width="100%" id="issueQty" placeholder="Enter Quantity" type="Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Menge}" liveChange=".onQtyChange"/>
-				            
-				            <Label text=""/>
-				            <Button xmlns="sap.m" text="Issue" type="Accept" width="100%" press=".onPressIssueProdOrder" />
-
-			            </sap.ui.layout.form:content>
-			            
-				    </sap.ui.layout.form:SimpleForm>
-				    
-				    <!--Reversal Order-->
-				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Reversals">
-				    
-				    	<sap.ui.layout.form:content>
-							<Label text="Select"/>
-							<RadioButtonGroup xmlns="sap.m" columns="2" id="reverseRadioBtn" select=".onRadioBtnChange">
-						        <buttons>
-						            <RadioButton text="Reverse Issued Stock" id="button2"/>
-						            <RadioButton text="Reverse Confirmed Production" id="button3"/>
-					            </buttons>
-						    </RadioButtonGroup>
-						    
-						    <Label text="Scan"/>
-				            <Input width="100%" id="reverseScan" placeholder="Scan" submit=".onChangeReverseBarcode" />
-						    
-						    <Label text="Production Order"/>
-				            <Input width="100%" id="reverseProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_PROD_REVERSALS_SRV>Aufnr}"/>
-				            
-				            <Label text="Material Number" visible="true" id="reverseSelectMaterialLbl" />
-				            <ComboBox id="reverseSelectMaterial" visible="true" editable="true" width="100%" selectedKey="{Z_PP_PROD_REVERSALS_SRV>Matnr}" items="{Z_PP_PROD_REVERSALS_SRV>/BOMSet}" change="onReversalMaterialChange">
-				            	<core:Item key="{Z_PP_PROD_REVERSALS_SRV>Material}" text="{Z_PP_PROD_REVERSALS_SRV>Material}" />
-				            </ComboBox>
-				            
-				            <Label text="Quantity"/>
-				            <Input width="100%" id="reverseQty" placeholder="Enter Quantity" type="Number" value="{Z_PP_PROD_REVERSALS_SRV>Menge}" liveChange=".onQtyChange"/>
-				            
-				            <Label text="Batch" visible="false" id="reverseBatchSelectLbl" />
-				            <ComboBox id="reverseBatchSelect" visible="false" editable="true" width="100%" selectedKey="{Z_PP_PROD_REVERSALS_SRV>Batch}" items="{Z_PP_PROD_REVERSALS_SRV>/BatchSetSet}" change="onReversebatchSelect">
-				            	<core:Item key="{Z_PP_PROD_REVERSALS_SRV>BatchText}" text="{Z_PP_PROD_REVERSALS_SRV>BatchText}" />
-				            </ComboBox>
-				            
-				            <Label text=""/>
-				            <Button xmlns="sap.m" text="Reverse" type="Accept" press=".onPressReverse" width="100%" />
+					<IconTabBar
+						id="idIconTabBarMulti"
+						expanded="{device>/isNoPhone}"
+						expandable="false"
+						class="sapUiResponsiveContentPadding"
+						select=".onSelectIconTab">
+						<items>
 							
-						</sap.ui.layout.form:content>
-				    
-				    </sap.ui.layout.form:SimpleForm>
-				    
-				    <!--Transfers-->
-				    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" class="sapUiMediumMarginTopBottom" title="Transfers">
-				    
-				    	<sap.ui.layout.form:content>
+							<IconTabFilter
+								icon="sap-icon://add-product" text="Confirm Order" id="tabConfirmOrder" iconColor="Positive">
 								
-						    <Label text="Scan"/>
-				            <Input width="100%" id="transferScan" placeholder="Scan" submit=".onChangeTransferScan" />
-				            
-				            <Label text="Material Number"/>
-				            <Input width="100%" id="trMatNumber" placeholder="Select Material Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>Matnr}" />
-				            
-				            <Label text="Quantity"/>
-				            <Input width="100%" id="trQty" placeholder="Enter Quantity" type="Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>Menge}" liveChange=".onQtyChange"/>
-				            
-				            <Label text="Storgage Location (from)"/>
-				            <Input width="100%" id="trFromSloc" placeholder="From SLOC" type="Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>LgortVon}" liveChange="onSlocChange"/>
-				            <Input width="100%" id="trFromSlocName" enabled="false"/>
-				            <!--<Text width="100%" id="trFromSlocName"/>-->
-				            
-				            <Label text="Storgage Location (to)"/>
-				            <Input width="100%" id="trToSloc" placeholder="To SLOC" type="Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>LgortNach}" liveChange="onSlocChange"/>
-				            <Input width="100%" id="trToSlocName" enabled="false"/>
-				            <!--<Text width="100%" id="trToSlocName"/>-->
-				            
-				            <Label text="Batch" visible="false" id="transferBatchSelectLbl" />
-				            <ComboBox id="transferBatchSelect" visible="false" editable="true" width="100%" selectedKey="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}" items="{ZRF_TRANSFER_STOCK_IM_SRV>/BatchSetSet}" change=".onTransferbatchSelect">
-				            	<core:Item key="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}" text="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}-{ZRF_TRANSFER_STOCK_IM_SRV>BatchText}" />
-				            </ComboBox>
-				            
-				            <Label text=""/>
-				            <Button xmlns="sap.m" text="Transfer" type="Accept" width="100%" press=".onPressTransfer" />
+								<!--Confirm Order-->
+							    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout" >
+							    	
+							        <sap.ui.layout.form:content height="100%">
+							        	
+							        	<Label text="Scan"/>
+							            <Input width="100%" id="confirmScan" placeholder="Scan" submit="onPressComfirmScan"/>
+							        	
+							            <Label text="Production Order"/>
+							            <Input width="100%" id="confirmProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_PRODORDER_CONFIRM_SRV>Aufnr}"/>
+							            
+							            <Label text="Material"/>
+							            <Input width="100%" id="confirmMaterial" enabled="false" value="{Z_PP_PRODORDER_CONFIRM_SRV>Matnr}"/>
+							            
+							            <Label text="Quantity"/>
+							            <Input width="100%" id="confirmQty" placeholder="Enter Quantity" type="Number" value="{ path: 'Z_PP_PRODORDER_CONFIRM_SRV>Menge', formatter: '.formatter.numberUnitNoDecimal'}" liveChange=".onQtyChange"/>
+							            
+							            <Label text="Receipt Storage Location"/>
+							            <Input width="100%" id="confirmSloc" enabled="false" value="{Z_PP_PRODORDER_CONFIRM_SRV>Lgort}"/>
+							            <Input width="100%" id="confirmSlocName" enabled="false" value="{Z_PP_PRODORDER_CONFIRM_SRV>Lgobe}"/>
+							            
+						            </sap.ui.layout.form:content>
+						            
+							    </sap.ui.layout.form:SimpleForm>
+								
+							</IconTabFilter>
 							
-						</sap.ui.layout.form:content>
-				    
-				    </sap.ui.layout.form:SimpleForm>
-				    
-				    
+							<IconTabFilter icon="sap-icon://journey-arrive" text="Issue Order" id="tabIssueOrder" iconColor="Positive">
+								
+								<!--Issue Order-->
+							    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout">
+							    	
+							        <sap.ui.layout.form:content>
+							        	
+							        	<Label text="Scan"/>
+							            <Input width="100%" id="issueScan" placeholder="Scan" submit="onChangeIssueBarcode"/>
+							        	
+							            <Label text="Production Order"/>
+							            <Input width="100%" id="issueProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Aufnr}"/>
+							            
+							            <Label text="Material"/>
+							            <Input width="100%" id="issueMatNumber" placeholder="Enter Material Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Matnr}"/>
+							            
+							            <Label text="Storage Location"/>
+							            <Input width="100%" id="issueSloc" placeholder="Enter Storage Location" type="Number" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Lgort}" />
+							            <Input width="100%" id="issueSlocName" enabled="false" value="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Lgobe}" />
+							            
+							            <Label text="Quantity"/>
+							            <Input width="100%" id="issueQty" placeholder="Enter Quantity" type="Number" value="{ path: 'Z_PP_ISSUE_TO_PRODUCTION_SRV>Menge', formatter: '.formatter.numberUnitNoDecimal'}" liveChange=".onQtyChange"/>
+							            
+							            <Label text="Batch" visible="false" id="issueBatchSelectLbl" />
+							            <ComboBox id="issueBatchSelect" visible="false" editable="true" width="100%" selectedKey="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Batch}" items="{Z_PP_ISSUE_TO_PRODUCTION_SRV>/BatchSet}">
+							            	<core:Item key="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Batch}" text="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Batch}-{Z_PP_ISSUE_TO_PRODUCTION_SRV>BatchText}" />
+							            </ComboBox>
+			
+						            </sap.ui.layout.form:content>
+						            
+							    </sap.ui.layout.form:SimpleForm>
+								
+							</IconTabFilter>
+							
+							<IconTabFilter icon="sap-icon://undo" text="Reversal" id="tabReversal" iconColor="Critical">
+								
+								<!--Reversal Order-->
+							    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout">
+							    
+							    	<sap.ui.layout.form:content>
+										<Label text="Select"/>
+										<RadioButtonGroup xmlns="sap.m" columns="2" id="reverseRadioBtn" select=".onRadioBtnChange">
+									        <buttons>
+									            <RadioButton text="Reverse Issued Stock" id="button2"/>
+									            <RadioButton text="Reverse Confirmed Production" id="button3"/>
+								            </buttons>
+									    </RadioButtonGroup>
+									    
+									    <Label text="Scan"/>
+							            <Input width="100%" id="reverseScan" placeholder="Scan" submit=".onChangeReverseBarcode" />
+									    
+									    <Label text="Production Order"/>
+							            <Input width="100%" id="reverseProdOrder" placeholder="Enter Production Order" type="Number" value="{Z_PP_PROD_REVERSALS_SRV>Aufnr}"/>
+							            
+							            <Label text="Material Number" visible="true" id="reverseSelectMaterialLbl" />
+							            <ComboBox id="reverseSelectMaterial" visible="true" editable="true" width="100%" selectedKey="{Z_PP_PROD_REVERSALS_SRV>Matnr}" items="{Z_PP_PROD_REVERSALS_SRV>/BOMSet}">
+							            	<core:Item key="{Z_PP_PROD_REVERSALS_SRV>Material}" text="{Z_PP_PROD_REVERSALS_SRV>Material}" />
+							            </ComboBox>
+							            
+							            <Label text="Quantity"/>
+							            <Input width="100%" id="reverseQty" placeholder="Enter Quantity" type="Number" value="{ path: 'Z_PP_PROD_REVERSALS_SRV>Menge', formatter: '.formatter.numberUnitNoDecimal'}" liveChange=".onQtyChange"/>
+							            
+							            <Label text="Batch" visible="false" id="reverseBatchSelectLbl" />
+							            <ComboBox id="reverseBatchSelect" visible="false" editable="true" width="100%" selectedKey="{Z_PP_PROD_REVERSALS_SRV>Batch}" items="{Z_PP_PROD_REVERSALS_SRV>/BatchSetSet}">
+							            	<core:Item key="{Z_PP_PROD_REVERSALS_SRV>BatchText}" text="{Z_PP_PROD_REVERSALS_SRV>BatchText}" />
+							            </ComboBox>
+										
+									</sap.ui.layout.form:content>
+							    
+							    </sap.ui.layout.form:SimpleForm>
+								
+							</IconTabFilter>
+							
+							<IconTabFilter icon="sap-icon://journey-depart" text="Transfer Stock" id="tabTransfer">
+								
+								<!--Transfers-->
+							    <sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true" layout="ResponsiveGridLayout">
+							    
+							    	<sap.ui.layout.form:content>
+											
+									    <Label text="Scan"/>
+							            <Input width="100%" id="transferScan" placeholder="Scan" submit=".onChangeTransferScan" />
+							            
+							            <Label text="Material Number"/>
+							            <Input width="100%" id="trMatNumber" placeholder="Select Material Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>Matnr}" />
+							            
+							            <Label text="Quantity"/>
+							            <Input width="100%" id="trQty" placeholder="Enter Quantity" type="Number" value="{ path: 'ZRF_TRANSFER_STOCK_IM_SRV>Menge', formatter: '.formatter.numberUnitNoDecimal'}" liveChange=".onQtyChange"/>
+							            
+							            <Label text="Storgage Location (from)"/>
+							            <Input width="100%" id="trFromSloc" placeholder="From SLOC" type="Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>LgortVon}" liveChange="onSlocChange"/>
+							            <Input width="100%" id="trFromSlocName" enabled="false"/>
+							            
+							            <Label text="Storgage Location (to)"/>
+							            <Input width="100%" id="trToSloc" placeholder="To SLOC" type="Number" value="{ZRF_TRANSFER_STOCK_IM_SRV>LgortNach}" liveChange="onSlocChange"/>
+							            <Input width="100%" id="trToSlocName" enabled="false"/>
+							            
+							            <Label text="Batch" visible="false" id="transferBatchSelectLbl" />
+							            <ComboBox id="transferBatchSelect" visible="false" editable="true" width="100%" selectedKey="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}" items="{ZRF_TRANSFER_STOCK_IM_SRV>/BatchSetSet}" change=".onTransferbatchSelect">
+							            	<core:Item key="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}" text="{ZRF_TRANSFER_STOCK_IM_SRV>Batch}-{ZRF_TRANSFER_STOCK_IM_SRV>BatchText}" />
+							            </ComboBox>
+										
+									</sap.ui.layout.form:content>
+							    
+							    </sap.ui.layout.form:SimpleForm>
+								
+							</IconTabFilter>
+							
+						</items>
+					</IconTabBar>
+
 				</content>
+				
+				<footer id="footer">
+					<Bar id="bar">
+						<contentLeft>
+							<Button text="Reset" type="Emphasized" tooltip="{i18n>ResetValues}" press="onResetPress" icon="sap-icon://refresh" />
+						</contentLeft>
+						<contentMiddle>
+							<Button id="idBarcodeScanBt" icon="sap-icon://bar-code" visible="false" press="onBcButtonPress"/>
+						</contentMiddle>
+						<contentRight>
+							<Button id="idBtnSend" text="{i18n>btnSendConfirmText}" tooltip="{i18n>btnSendConfirmText}" press="onSendPress" type="Accept" />
+						</contentRight>
+					</Bar>
+				</footer>
+				
 			</Page>
 		</pages>
 		
