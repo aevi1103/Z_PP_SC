@@ -253,7 +253,7 @@ sap.ui.define([
 					
 					const context = that.getBindingContext(MODEL_NAME); 
 					const path = `/BarcodePrefixSet('${encodeURIComponent(barcode)}')`;
-					const oBarcode = oEvent.getSource();
+					const oBarcode = oEvent ? oEvent.getSource() : that.getId("issueScan");
 					
 					const showBarcodeFailure = () => {
 						const ttl = bundle.getProperty("barcodeFailure");
@@ -264,7 +264,26 @@ sap.ui.define([
 					model.read(path, {
 						success: (oData) => {
 						
-							const {Aufnr, Lgort, Lgobe, HuExt, Matnr, Menge, Batch } = oData;
+							const {Aufnr, Lgort, Lgobe, HuExt, Matnr, Menge, Batch, Objid } = oData;
+							
+							if (Objid !== "00000000"){
+								
+								const oFilterWC = new sap.ui.model.Filter("Objid", sap.ui.model.FilterOperator.EQ, oData.Objid);
+								const oFilters = [oFilterWC];
+								
+								//Load Table Select Dialog
+								that._oWCDialog = sap.ui.xmlfragment("com.federalmogul.sc.Z_PP_SC.fragments.WorkCenterSelect", that);
+								that.getView().addDependent(that._oWCDialog);
+								that._oWCDialog.setModel(model);
+								var oList = that._oWCDialog.getContent()[0];
+								
+								//Filter			
+								oList.getBinding("items").filter(oFilters, "Application");
+								that._oWCDialog.open();						
+								
+								return;
+							}
+							
 							const contextProps = context.getProperty();
 							
 							//show barcode error if no SLOC defined
@@ -974,15 +993,6 @@ sap.ui.define([
 		},
 		
 		/*
-		Formatter
-		------------------------------------------------------------------------------------------------------
-		*/
-		
-		// formatQty: function(sValue){
-		// 	return sValue === "" ? "" : parseFloat(sValue).toFixed(0);
-		// },
-		
-		/*
 		Comfirm Prod
 		------------------------------------------------------------------------------------------------------
 		*/
@@ -999,6 +1009,22 @@ sap.ui.define([
 		onChangeIssueBarcode: function(oEvent){
 			const barcode = oEvent.getParameter("value");
 			this.prodOrderIssue().handleBarcodeInput(barcode, oEvent);
+		},
+		
+		//work center dialog
+		
+		//Handler for Production Order Selection 
+		handleCancelWCSelect : function(){
+			//Close Selection Dialog
+			this._oWCDialog.close();
+		},
+		
+		//Handler for Production Order Selection 
+		onProdOrderSelect : function(oEvent){
+			const { Aufnr }  = oEvent.getSource().getBindingContext().getProperty();
+			const barcode = `(251)${Aufnr}`;
+			this.prodOrderIssue().handleBarcodeInput(barcode, null);
+			this._oWCDialog.close();
 		},
 		
 		/*

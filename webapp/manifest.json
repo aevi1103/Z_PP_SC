@@ -30,28 +30,12 @@
 					"localUri": "localService/Z_PP_ISSUE_TO_PRODUCTION_SRV/metadata.xml"
 				}
 			},
-			"Z_PP_SCRAP_RECORDING_SRV": {
-				"uri": "/sap/opu/odata/sap/Z_PP_SCRAP_RECORDING_SRV/",
-				"type": "OData",
-				"settings": {
-					"odataVersion": "2.0",
-					"localUri": "localService/Z_PP_SCRAP_RECORDING_SRV/metadata.xml"
-				}
-			},
 			"Z_PP_PROD_REVERSALS_SRV": {
 				"uri": "/sap/opu/odata/sap/Z_PP_PROD_REVERSALS_SRV/",
 				"type": "OData",
 				"settings": {
 					"odataVersion": "2.0",
 					"localUri": "localService/Z_PP_PROD_REVERSALS_SRV/metadata.xml"
-				}
-			},
-			"ZRF_STOCK_INFO_SRV": {
-				"uri": "/sap/opu/odata/sap/ZRF_STOCK_INFO_SRV/",
-				"type": "OData",
-				"settings": {
-					"odataVersion": "2.0",
-					"localUri": "localService/ZRF_STOCK_INFO_SRV/metadata.xml"
 				}
 			},
 			"ZRF_TRANSFER_STOCK_IM_SRV": {
@@ -128,16 +112,6 @@
 				"dataSource": "Z_PP_ISSUE_TO_PRODUCTION_SRV",
 				"preload": true
 			},
-			"Z_PP_SCRAP_RECORDING_SRV": {
-				"type": "sap.ui.model.odata.v2.ODataModel",
-				"settings": {
-					"defaultOperationMode": "Server",
-					"defaultBindingMode": "TwoWay",
-					"defaultCountMode": "Request"
-				},
-				"dataSource": "Z_PP_SCRAP_RECORDING_SRV",
-				"preload": true
-			},
 			"Z_PP_PROD_REVERSALS_SRV": {
 				"type": "sap.ui.model.odata.v2.ODataModel",
 				"settings": {
@@ -146,16 +120,6 @@
 					"defaultCountMode": "Request"
 				},
 				"dataSource": "Z_PP_PROD_REVERSALS_SRV",
-				"preload": true
-			},
-			"ZRF_STOCK_INFO_SRV": {
-				"type": "sap.ui.model.odata.v2.ODataModel",
-				"settings": {
-					"defaultOperationMode": "Server",
-					"defaultBindingMode": "TwoWay",
-					"defaultCountMode": "Request"
-				},
-				"dataSource": "ZRF_STOCK_INFO_SRV",
 				"preload": true
 			},
 			"ZRF_TRANSFER_STOCK_IM_SRV": {

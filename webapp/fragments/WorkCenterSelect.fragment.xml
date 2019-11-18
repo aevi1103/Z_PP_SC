@@ -1,0 +1,27 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core" xmlns:f="sap.ui.layout.form">
+		<Dialog stretch="true" >
+		<content>
+			<List items="{/WorkCenterItemsSet}" >
+				<items>
+					<ObjectListItem icon="sap-icon://notes" title="{i18n>ProdOrder}: {Aufnr}" press="onProdOrderSelect" type="Active" number="{path : 'Gwemg', type : 'sap.ui.model.type.Integer'}" numberUnit="{Gmein}" numberState="Warning">
+						<attributes>
+							<ObjectAttribute title="{i18n>OrderStart}" text="{path: 'Gstrs', type : 'sap.ui.model.type.Date'} - {path : 'Cduzeit', formatter : '.formatter.formatTimeInstance'}" />
+							<ObjectAttribute title="{i18n>MatDescr}" text="{Maktx}" />
+						</attributes>
+						<firstStatus>
+							<ObjectStatus title="{i18n>MaterialNr}" text="{Matnr}" state="None" />
+						</firstStatus>
+						<secondStatus>
+							<ObjectStatus title="{i18n>PlannedQuan}" text="{path : 'Gamng', type : 'sap.ui.model.type.Integer'} {Gmein}" state="Success" />
+						</secondStatus>
+					</ObjectListItem>
+				</items>
+			</List>
+		</content>
+		<endButton>
+			<Button press="handleCancelWCSelect" text="{i18n>Cancel}" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

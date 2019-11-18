@@ -75,7 +75,7 @@ displayBlock="true">
 							            <Input width="100%" id="issueQty" placeholder="Enter Quantity" type="Number" value="{ path: 'Z_PP_ISSUE_TO_PRODUCTION_SRV>Menge', formatter: '.formatter.numberUnitNoDecimal'}" liveChange=".onQtyChange"/>
 							            
 							            <Label text="Batch" visible="false" id="issueBatchSelectLbl" />
-							            <ComboBox id="issueBatchSelect" visible="false" editable="true" width="100%" selectedKey="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Batch}" items="{Z_PP_ISSUE_TO_PRODUCTION_SRV>/BatchSet}">
+							            <ComboBox id="issueBatchSelect" visible="false" editable="true" width="100%" selectedKey="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Batch}" items="{Z_PP_ISSUE_TO_PRODUCTION_SRV>/BatchSetSet}">
 							            	<core:Item key="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Batch}" text="{Z_PP_ISSUE_TO_PRODUCTION_SRV>Batch}-{Z_PP_ISSUE_TO_PRODUCTION_SRV>BatchText}" />
 							            </ComboBox>
 			
